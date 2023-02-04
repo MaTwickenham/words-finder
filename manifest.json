@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Words Finder",
+    "description": "Find words which you want to know",
+    "version": "1.0.0",
+    "permissions": ["contextMenus", "activeTab", "tabs", "webRequest"],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "./js/background.js"
+    },
+    "host_permissions": [
+        "https://cn.bing.com/*"
+    ],
+    "content_scripts": [
+        {
+          "matches": ["http://*/*", "https://*/*"],
+          "js": ["./js/content.js"]
+        }
+    ]
+}
