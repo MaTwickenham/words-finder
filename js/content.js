@@ -3,6 +3,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.action === "getSelection"){
         //获取所选单词以及所在句子
         let selection = window.getSelection();
+        //获取所选单词在页面位置
+        let range = selection.getRangeAt(0).cloneRange();
+        rect = range.getClientRects()[0];
+        x = rect.left
+        y = rect.top
+
         let textNode = selection.focusNode.parentElement;
         let text = textNode.innerText;
         if(text !== ""){
@@ -12,11 +18,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             let sentence = arr.find(str => str.includes(word))
             alert(word);
             // //发送response给background
-            sendResponse({word: word, sentence: sentence});
+            sendResponse({word: word, sentence: sentence, pos: {x, y}});
         }
     } 
     else if(request.action == "translation"){
         let html = request.data;
+        let posx = request.pos.x + 50
+        let posy = request.pos.y + 50
         //生成dom
         let parser = new DOMParser();
         transDom = parser.parseFromString(html, "text/html");
@@ -33,16 +41,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         resultDom.innerText = description;
         resultDom.appendChild(closeBtn);
         //设置样式
-        resultDom.id = "word_description"
-        resultDom.style.position = "absolute";
-        resultDom.style.height = "200px";
-        resultDom.style.width = "400px";
-        resultDom.style.backgroundColor = "grey";
-        resultDom.style.opacity = "60%"
-        resultDom.style.left = "100px";
-        resultDom.style.top = "100px";
+        setStyles(resultDom, posx, posy);
         //添加释义div元素至dom
         document.body.appendChild(resultDom);
         sendResponse("sended!");
     }
 })
+
+function setStyles(element, x, y) {
+    element.id = "word_description"
+    element.style.position = "fixed";
+    element.style.height = "auto";
+    element.style.width = "200px";
+    element.style.borderRadius = "10px"
+    element.style.backgroundColor = "lightblue";
+    element.style.left = x + "px"
+    element.style.top = y + "px"
+    element.style.zIndex = 1000
+}

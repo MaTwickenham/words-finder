@@ -16,7 +16,8 @@ function getSelection(info, tab) {
     if (info.menuItemId === "addWords") {
         chrome.tabs.sendMessage(tab.id, { action: "getSelection" }, async (response) => {
             let html = await getMeaning(response.word)
-            chrome.tabs.sendMessage(tab.id, {action: "translation", data: html}, response => {
+            let pos = response.pos;
+            chrome.tabs.sendMessage(tab.id, {action: "translation", data: html, pos: pos}, response => {
                 console.log("sended!")
             })
         });
